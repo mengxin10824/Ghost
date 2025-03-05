@@ -25,7 +25,7 @@ export class Message {
         public timestamp: string,
         public sender: MessageType,
         public sendTime?: string,
-        public attachments: { base64: string }[] = [] // 添加附件支持
+        public attachments: { base64: string, mimeType: string, id: string }[] = [] // 添加图片ID支持
     ) {}
 
     // 是否有附件
@@ -57,5 +57,13 @@ export class Message {
         // this.contentBuffer.push(newContent);
         // this.content = this.contentBuffer.join('');
         this.content += newContent;
+    }
+
+    // 新增方法：生成图片的HTML标签
+    getImageHtml(): string {
+        if (this.attachments.length === 0) return '';
+        return this.attachments.map(attachment => {
+            return `<img src="data:${attachment.mimeType};base64,${attachment.base64}" alt="Uploaded Image" style="max-width: 100%; height: auto;" />`;
+        }).join('');
     }
 }

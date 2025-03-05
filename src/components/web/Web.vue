@@ -7,7 +7,7 @@ import TabBar from "./components/TabBar.vue";
 import { Tab } from "../../model/Tab";
 import { Message, MessageType } from "../../model/Message";
 import MarkdownIt from "markdown-it";
-
+import markdownItAttrs from 'markdown-it-attrs';
 // 标签页
 const tabs = ref<Tab[]>([new Tab(undefined, "New Tab", true, undefined)]);
 // 监听标签页变化
@@ -77,8 +77,16 @@ const activeTab = computed(() => {
   return tabs.value.find((tab) => tab.isActive);
 });
 
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+  html: true, // 允许HTML标签
+  linkify: true, // 自动转换URL为链接
+  typographer: true // 启用排版优化
+}).use(markdownItAttrs);
 const formatContent = (content: string) => {
+  // console.log('开始渲染消息内容:', content); // 日志15
+  // const html = md.render(content);
+  // console.log('渲染后的HTML:', html); // 日志16
+  // return html;
   return md.render(content);
 };
 
@@ -299,6 +307,21 @@ function getHistoriesFromLocalStorage() {
 function saveHistoriesToLocalStorage() {
   localStorage.setItem("histories", JSON.stringify(histories.value));
 }
+
+const base64ToBlob = (base64: string, mimeType: string) => {
+  const binaryStr = atob(base64);
+  const len = binaryStr.length;
+  const arr = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    arr[i] = binaryStr.charCodeAt(i);
+  }
+  return new Blob([arr], { type: mimeType });
+};
+
+const base64ToImageUrl = (base64: string, mimeType: string) => {
+  const blob = base64ToBlob(base64, mimeType);
+  return URL.createObjectURL(blob);
+};
 </script>
 <template>
   <div
@@ -379,10 +402,7 @@ function saveHistoriesToLocalStorage() {
                   </div>
                 </template>
                 <template v-else>
-                  <p
-                    class="text-pretty break-words"
-                    v-html="formatContent(part.content)"
-                  ></p>
+                  <div class="message-content" v-html="formatContent(msg.content)"></div>
                 </template>
               </template>
             </div>

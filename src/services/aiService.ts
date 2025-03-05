@@ -115,6 +115,8 @@ export const streamChatCompletion = async (
     modelSettings: any
 ) => {
     console.log("开始API调用，模型设置:", modelSettings);
+    console.log("请求消息内容:", messages);
+    const startTime = Date.now(); // 记录开始时间
 
     try {
         const requestBody = {
@@ -133,12 +135,15 @@ export const streamChatCompletion = async (
 
                 // 添加图片附件
                 if (msg.attachments?.length > 0) {
+                    console.log('处理图片附件:', msg.attachments); // 日志11
                     msg.attachments.forEach(attachment => {
                         contentParts.push({
                             type: "image_url",
                             image_url: {
-                                url: `data:image/jpeg;base64,${attachment.base64}`,
-                                detail: "auto" // 根据需求调整图片细节
+                                // url: `data:image/jpeg;base64,${attachment.base64}`,
+                                // detail: "auto" // 根据需求调整图片细节
+                                url: `data:${attachment.mimeType};base64,${attachment.base64}`,
+                                detail: "auto"
                             }
                         });
                     });
@@ -157,6 +162,8 @@ export const streamChatCompletion = async (
             stream: true
         };
 
+        console.log("请求体:", requestBody); // 日志12
+
         const response = await fetch(
             `${_currentModel.url || import.meta.env.VITE_API_BASE_URL}/chat/completions`,
             {   
@@ -169,9 +176,12 @@ export const streamChatCompletion = async (
             }
         );
 
-        console.log("API调用成功，响应:", response.body);
+        const endTime = Date.now(); // 记录结束时间
+        console.log("API调用成功，响应状态:", response.status, "耗时:", endTime - startTime, "ms");
 
         if (response.status !== 200) {
+            const errorResponse = await response.json();
+            console.error("API调用失败，错误信息:", errorResponse);
             throw new AIError('API_ERROR', 'Failed to fetch stream response', response.status);
         }
 
@@ -179,7 +189,7 @@ export const streamChatCompletion = async (
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
-        let messageId: string | null = null; 
+        let messageId: string | null = null;
 
         while (true) {
             const { done, value } = await reader.read();
@@ -217,7 +227,7 @@ export const streamChatCompletion = async (
             });
         }
     } catch (error) {
-        console.error("API调用失败:", error);
+        console.error("API调用过程中出错:", error); // 日志14
         throw error;
     }
 }

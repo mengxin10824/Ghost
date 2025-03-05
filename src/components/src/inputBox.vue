@@ -197,10 +197,16 @@ const handleFileUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files && input.files.length > 0) {
     const file = input.files[0];
+    console.log('开始上传文件:', file.name, '文件类型:', file.type, '文件大小:', file.size, 'bytes'); // 增加文件大小日志
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target?.result as string;
+        console.log('文件读取完成，Base64长度:', base64.length); // 日志2
+
+        // 生成唯一的图片ID
+        const imageId = `image-${generateUUID()}`;
+        console.log('生成图片ID:', imageId); // 日志3
 
         // 将文件信息和文字指令发送给 AI 模型
         const message = new Message(
@@ -209,29 +215,35 @@ const handleFileUpload = async (event: Event) => {
           MessageType.USER,
           getNow(),
           MessageType.USER,
-          getNow(), // 添加 sendTime 参数
-          [{ base64: base64.split(',')[1] }] // 附件
+          getNow(),
+          [{ 
+            base64: base64.split(',')[1],
+            mimeType: file.type,
+            id: imageId // 添加图片ID
+          }] // 附件
         );
+        console.log('创建消息对象:', message); // 日志4
 
         emit("sendMessage", message);
         inputContent.value = ""; // 清空输入框
 
         // 调用 AI 接口
         try {
+          console.log('开始调用AI接口...'); // 日志5
           await streamChatCompletion(
             [message],
             (newMessage) => {
-              // 新建消息对象，并设置类型为 BOT
+              console.log('收到AI响应:', newMessage); // 日志6
               newMessage.type = MessageType.BOT;
               emit("receiveMessage", newMessage);
             },
             (messageId, content) => {
-              // 更新消息内容
+              console.log('更新消息内容:', messageId, content); // 日志7
               emit("updateMessage", messageId, content);
             },
             modelSettings.value // 传递用户设置的参数
           );
-          console.log("streamChatCompletion completed.", message);
+          console.log("streamChatCompletion 完成",message); // 日志8
         } catch (error) {
           console.error("Error sending message:", error);
           alert("API 调用失败，请检查 API Key 和网络连接");
@@ -247,10 +259,22 @@ const handleFileUpload = async (event: Event) => {
 
 const handleAttachClick = () => {
   if (currentModel.value.supportsAttach) {
-    const fileInput = document.getElementById('inputAttach') as HTMLInputElement;
-    fileInput.click();
+    // 确保获取的是常规DOM元素
+    const fileInput = document.querySelector('#inputAttach') as HTMLInputElement;
+    if (fileInput && fileInput instanceof HTMLInputElement) {
+      fileInput.click();
+    } else {
+      console.error('无法找到文件输入元素');
+    }
   }
 };
+
+function getShadowRoot(element: HTMLElement): ShadowRoot | null {
+  if (element.shadowRoot) {
+    return element.shadowRoot;
+  }
+  return null;
+}
 </script>
 
 <template>
@@ -374,7 +398,6 @@ const handleAttachClick = () => {
         </div>
         <input
           type="file"
-          name="inputAttach"
           id="inputAttach"
           class="hidden"
           :accept="acceptAttachString"
