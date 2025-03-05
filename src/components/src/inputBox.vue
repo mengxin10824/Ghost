@@ -29,6 +29,7 @@ let props = defineProps({
     type: String,
     required: false,
     default: "image/png, image/jpeg, image/jpg",
+    // default: "image/png, image/jpeg, image/jpg, application/pdf, text/plain, application/msword"
   },
 });
 
@@ -121,7 +122,9 @@ const handleSend = async () => {
     generateUUID(),
     inputContent.value,
     MessageType.USER,
-    getNow()
+    getNow(),
+    MessageType.USER,
+    getNow(),
   );
 
   inputContent.value = "";
@@ -187,6 +190,66 @@ const handleModelChange = (model: Model) => {
   const supportsAttach =
     supportedModels.find((m) => m.id === model.id)?.supportsAttach || false;
   emit("update:allowAttach", supportsAttach);
+};
+
+// 上传文件处理函数
+const handleFileUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    const file = input.files[0];
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+
+        // 将文件信息和文字指令发送给 AI 模型
+        const message = new Message(
+          generateUUID(),
+          inputContent.value, // 文字指令
+          MessageType.USER,
+          getNow(),
+          MessageType.USER,
+          getNow(), // 添加 sendTime 参数
+          [{ base64: base64.split(',')[1] }] // 附件
+        );
+
+        emit("sendMessage", message);
+        inputContent.value = ""; // 清空输入框
+
+        // 调用 AI 接口
+        try {
+          await streamChatCompletion(
+            [message],
+            (newMessage) => {
+              // 新建消息对象，并设置类型为 BOT
+              newMessage.type = MessageType.BOT;
+              emit("receiveMessage", newMessage);
+            },
+            (messageId, content) => {
+              // 更新消息内容
+              emit("updateMessage", messageId, content);
+            },
+            modelSettings.value // 传递用户设置的参数
+          );
+          console.log("streamChatCompletion completed.", message);
+        } catch (error) {
+          console.error("Error sending message:", error);
+          alert("API 调用失败，请检查 API Key 和网络连接");
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('文件上传错误:', error);
+      alert('文件上传失败，请重试');
+    }
+  }
+};
+
+const handleAttachClick = () => {
+  if (currentModel.value.supportsAttach) {
+    const fileInput = document.getElementById('inputAttach') as HTMLInputElement;
+    fileInput.click();
+  }
 };
 </script>
 
@@ -288,6 +351,36 @@ const handleModelChange = (model: Model) => {
           </svg>
           <span class="text-sm font-black hidden md:block text-nowrap">参数设置</span>
         </div>
+        <!-- 上传附件按钮 -->
+        <div
+          class="flex items-center w-fit gap-2 bg-white hover:bg-blue-300 rounded-full p-2 shadow-2xl cursor-pointer text-black px-4"
+          :class="{ 'cursor-not-allowed opacity-50': !currentModel.supportsAttach }"
+          :title="currentModel.supportsAttach ? '上传附件' : '当前模型不支持上传附件'"
+          @click="handleAttachClick"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="none"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill="#000"
+              d="M10.62 3.492a4.89 4.89 0 0 1 1.588-1.098 4.85 4.85 0 0 1 5.376 1.054c.458.463.82 1.013 1.067 1.619a4.99 4.99 0 0 1-.025 3.813 4.946 4.946 0 0 1-1.087 1.604l-7.611 7.691a2.935 2.935 0 0 1-2.08.886 2.91 2.91 0 0 1-2.09-.868 2.969 2.969 0 0 1-.86-2.11 2.992 2.992 0 0 1 .877-2.102l7.613-7.691 1.384 1.398-7.613 7.69a.989.989 0 0 0-.298.703.998.998 0 0 0 .286.708.977.977 0 0 0 1.078.21.98.98 0 0 0 .318-.222l7.613-7.69a2.97 2.97 0 0 0 .86-2.099 2.995 2.995 0 0 0-.86-2.097 2.933 2.933 0 0 0-2.076-.87 2.91 2.91 0 0 0-2.076.87l-7.612 7.691a4.972 4.972 0 0 0-1.374 3.478 4.97 4.97 0 0 0 1.433 3.453 4.869 4.869 0 0 0 3.418 1.448 4.867 4.867 0 0 0 3.442-1.388l8.305-8.39 1.384 1.4-8.304 8.39A6.816 6.816 0 0 1 7.85 23c-1.817 0-3.56-.73-4.844-2.027A6.958 6.958 0 0 1 1 16.078a6.96 6.96 0 0 1 2.007-4.895l7.613-7.69Z"
+            />
+          </svg>
+          <span class="text-sm font-black hidden md:block text-nowrap">上传附件</span>
+        </div>
+        <input
+          type="file"
+          name="inputAttach"
+          id="inputAttach"
+          class="hidden"
+          :accept="acceptAttachString"
+          :disabled="!currentModel.supportsAttach"
+          @change="handleFileUpload"
+        />
       </div>
 
       <div
@@ -301,33 +394,6 @@ const handleModelChange = (model: Model) => {
           @keyup.enter="handleSend"
         ></textarea>
         <div class="absolute bottom-2 right-2 flex items-center gap-4 no-scrollbar">
-          <!-- Attach Button -->
-          <div class="flex gap-2 relative text-gray-400" v-if="props.allowAttach">
-            <label for="inputAttach">
-              <span class="text-sm pr-2 align-bottom">上传附件</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="inline-block"
-              >
-                <path
-                  fill="currentColor"
-                  d="M10.62 3.492a4.89 4.89 0 0 1 1.588-1.098 4.85 4.85 0 0 1 5.376 1.054c.458.463.82 1.013 1.067 1.619a4.99 4.99 0 0 1-.025 3.813 4.946 4.946 0 0 1-1.087 1.604l-7.611 7.691a2.935 2.935 0 0 1-2.08.886 2.91 2.91 0 0 1-2.09-.868 2.969 2.969 0 0 1-.86-2.11 2.992 2.992 0 0 1 .877-2.102l7.613-7.691 1.384 1.398-7.613 7.69a.989.989 0 0 0-.298.703.998.998 0 0 0 .286.708.977.977 0 0 0 1.078.21.98.98 0 0 0 .318-.222l7.613-7.69a2.97 2.97 0 0 0 .86-2.099 2.995 2.995 0 0 0-.86-2.097 2.933 2.933 0 0 0-2.076-.87 2.91 2.91 0 0 0-2.076.87l-7.612 7.691a4.972 4.972 0 0 0-1.374 3.478 4.97 4.97 0 0 0 1.433 3.453 4.869 4.869 0 0 0 3.418 1.448 4.867 4.867 0 0 0 3.442-1.388l8.305-8.39 1.384 1.4-8.304 8.39A6.816 6.816 0 0 1 7.85 23c-1.817 0-3.56-.73-4.844-2.027A6.958 6.958 0 0 1 1 16.078a6.96 6.96 0 0 1 2.007-4.895l7.613-7.69Z"
-                />
-              </svg>
-            </label>
-            <input
-              type="file"
-              name="inputAttach"
-              id="inputAttach"
-              class="hidden"
-              :accept="acceptAttachString"
-            />
-          </div>
-
           <!-- Send Button -->
           <button @click="handleSend" class="p-2">
             <svg

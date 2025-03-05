@@ -18,16 +18,16 @@ export enum MessageType {
 }
 
 export class Message {
-    // 唯一标识
-    id: string;
-    content: string;
+    constructor(
+        public readonly id: string,
+        public content: string,
+        public type: MessageType,
+        public timestamp: string,
+        public sender: MessageType,
+        public sendTime?: string,
+        public attachments: { base64: string }[] = [] // 添加附件支持
+    ) {}
 
-    // 发送者
-    sender: MessageType;
-
-    // 发送时间
-    sendTime: string;
-    
     // 是否有附件
     attachMent: Array<File> | null = null;
 
@@ -36,19 +36,21 @@ export class Message {
     isStreaming: boolean = false;
     contentBuffer: string[] = [];
 
-    type: MessageType;
 
-    constructor(id: string = generateUUID(), content: string, sender: MessageType, sendTime: string = getNow(), attachMent: Array<File> | null = null) {
-        this.id = id;
-        this.content = content;
-        this.sender = sender;
-        this.sendTime = sendTime;
-        this.attachMent = attachMent;
-        this.type = sender;
-    }
+    // type: MessageType;
+
+    // constructor(id: string = generateUUID(), content: string, sender: MessageType, sendTime: string = getNow(), attachMent: Array<File> | null = null) {
+    //     this.id = id;
+    //     this.content = content;
+    //     this.sender = sender;
+    //     this.sendTime = sendTime;
+    //     this.attachMent = attachMent;
+    //     this.type = sender;
+    // }
+
 
     hasAttachments(): boolean {
-        return this.attachMent !== null && this.attachMent.length > 0;
+        return this.attachments.length > 0;
     }
 
     updateContent(newContent: string) {

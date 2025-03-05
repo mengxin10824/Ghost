@@ -115,9 +115,48 @@ export const streamChatCompletion = async (
     modelSettings: any
 ) => {
     console.log("开始API调用，模型设置:", modelSettings);
-    // _currentModel = setCurrentModel(modelSettings.model);
 
     try {
+        const requestBody = {
+            model: _currentModel.id || modelSettings.model,
+            messages: messages.map((msg) => {
+                // 处理包含附件的情况
+                const contentParts = [];
+                
+                // 添加文字指令
+                if (msg.content) {
+                    contentParts.push({
+                        type: "text",
+                        text: msg.content
+                    });
+                }
+
+                // 添加图片附件
+                if (msg.attachments?.length > 0) {
+                    msg.attachments.forEach(attachment => {
+                        contentParts.push({
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${attachment.base64}`,
+                                detail: "auto" // 根据需求调整图片细节
+                            }
+                        });
+                    });
+                }
+
+                return {
+                    role: msg.type === MessageType.USER ? "user" : "assistant",
+                    content: contentParts
+                };
+            }),
+            max_tokens: modelSettings.maxTokens,
+            temperature: modelSettings.temperature,
+            top_p: modelSettings.topP,
+            top_k: modelSettings.topK,
+            frequency_penalty: modelSettings.frequency_penalty,
+            stream: true
+        };
+
         const response = await fetch(
             `${_currentModel.url || import.meta.env.VITE_API_BASE_URL}/chat/completions`,
             {   
@@ -126,20 +165,7 @@ export const streamChatCompletion = async (
                     Authorization: _currentModel.getFullKey(),
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    prompt: messages.map((msg) => msg.content).join('\n'),
-                    model: _currentModel.id || modelSettings.model,
-                    messages: messages.map((msg) => ({
-                        role: msg.type === MessageType.USER ? "user" : "assistant",
-                        content: msg.content,
-                    })),
-                    max_tokens: modelSettings.maxTokens,
-                    temperature: modelSettings.temperature,
-                    top_p: modelSettings.topP,
-                    top_k: modelSettings.topK,
-                    frequency_penalty: modelSettings.frequency_penalty,
-                    stream: true
-                })
+                body: JSON.stringify(requestBody)
             }
         );
 
@@ -180,7 +206,8 @@ export const streamChatCompletion = async (
                         generateUUID(), 
                         content, 
                         MessageType.BOT, 
-                        getNow()
+                        getNow(),
+                        MessageType.BOT
                     );
                     messageId = newMessage.id;
                     onData(newMessage);
