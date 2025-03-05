@@ -45,13 +45,13 @@ const emit = defineEmits<{
   (event: "receiveMessage", content: Message): void;
   (event: "updateMessage", messageId: string, content: string): void;
   (event: "update:allowAttach", allowAttach: boolean): void;
+  (event: "turnOnSafetyMode"): void;
 }>();
 
 let prompt = ref(false);
-let safetyMode = ref(false);
 let modelSwitch = ref(false);
 let modelSetting = ref(false);
-
+let safetyMode = ref(false);
 let inputContent = ref("");
 
 function initMessage(messageString: string) {
@@ -262,9 +262,11 @@ const handleModelChange = (model: Model) => {
           <AllPrompts v-if="prompt" @selectPrompt="selectPrompt" />
         </div>
         <div
-          class="flex items-center w-fit gap-2 bg-white hover:bg-blue-300 rounded-full p-2 shadow-2xl cursor-pointer text-black px-4"
-          @click="safetyMode = !safetyMode"
-          :class="{ 'bg-blue-300': safetyMode }"
+          class="flex items-center w-fit gap-2  hover:bg-blue-300 rounded-full p-2 shadow-2xl cursor-pointer text-black px-4"
+          @click="
+            $emit('turnOnSafetyMode');
+          "
+          :class="[safetyMode ? 'bg-blue-300' :'bg-white']"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -278,9 +280,9 @@ const handleModelChange = (model: Model) => {
               d="M7.33 11.33h1.34v-4H7.33v4ZM8 6c.19 0 .35-.06.48-.2a.65.65 0 0 0 .19-.47.65.65 0 0 0-.2-.47.64.64 0 0 0-.47-.2.64.64 0 0 0-.47.2.65.65 0 0 0-.2.47c0 .2.07.35.2.48.12.13.28.2.47.19Zm0 8.67A6.64 6.64 0 0 1 4.17 12a7.65 7.65 0 0 1-1.5-4.61V3.33l5.33-2 5.33 2V7.4c0 1.69-.5 3.23-1.5 4.6A6.64 6.64 0 0 1 8 14.68Zm0-1.4a5.43 5.43 0 0 0 2.87-2.2A6.33 6.33 0 0 0 12 7.4V4.25l-4-1.5-4 1.5V7.4c0 1.34.38 2.57 1.13 3.67A5.43 5.43 0 0 0 8 13.27Z"
             />
           </svg>
-          <span class="text-sm font-black hidden md:block text-nowrap"
-            >无痕模式</span
-          >
+          <span class="text-sm font-black hidden md:block text-nowrap">
+            无痕模式
+          </span>
         </div>
         <!-- Command -->
         <div class="relative">

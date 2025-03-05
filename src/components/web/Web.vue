@@ -290,6 +290,12 @@ function deleteHistory(history: Tab) {
   deleteTab(history);
 }
 
+function turnOnSafetyMode() {
+  const newTab = new Tab(undefined, "隐私模式", false, undefined)
+  newTab.isPrivate = true;
+  addNewTab(newTab)
+}
+
 function getHistoriesFromLocalStorage() {
   const storedHistories = localStorage.getItem("histories");
   return storedHistories ? JSON.parse(storedHistories) : [];
@@ -445,6 +451,7 @@ function saveHistoriesToLocalStorage() {
         @sendMessage="handleSendMessage"
         @receiveMessage="handleReceiveMessage"
         @updateMessage="updateMessage"
+        @turnOnSafetyMode="turnOnSafetyMode"
       />
     </div>
 
