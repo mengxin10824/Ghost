@@ -123,8 +123,7 @@ export const getChatCompletion = async (
 };
 
 export const streamChatCompletion = async (
-  message: Message,
-  assistantString: string,
+  messages: Message[],
   systemString: string,
   onData?: (chunk: Message) => void,
   onComplete?: (messageId: string, content: string) => void,
@@ -149,17 +148,13 @@ export const streamChatCompletion = async (
           model: _currentModel.id || modelSettings.model,
           messages: [
             {
-              role: "user",
-              content: message.content,
-            },
-            {
-              role: "assistant",
-              content: assistantString,
-            },
-            {
               role: "system",
               content: systemString,
             },
+            ...messages.map((msg) => ({
+              role: msg.sendTime === MessageType.BOT ? "assistant" : "user",
+              content: msg.content,
+            })),
           ],
           max_tokens: modelSettings.maxTokens,
           temperature: modelSettings.temperature,

@@ -41,7 +41,7 @@ export class ModelContext {
 
   // 获取当前有效上下文
   getContext(): Message[] {
-    return [...this.messages];
+    return this.messages;
   }
 
   getContextString(): string {

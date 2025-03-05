@@ -335,7 +335,7 @@ function saveHistoriesToLocalStorage() {
 
       <!-- Chat -->
       <div
-        class="grow w-full text-white md:px-26 md:py-10 md:gap-5 md:flex md:flex-col overflow-y-auto h-[calc(100vh-200px)]"
+        class="grow w-full text-white py-5 px-3 md:px-26 md:py-10 md:gap-5 md:flex md:flex-col overflow-y-auto h-[calc(100vh-200px)]"
       >
         <div class="relative group" v-for="msg in activeMessages" :key="msg.id">
           <div
