@@ -10,6 +10,7 @@ import { streamChatCompletion, setCurrentModel } from "../../services/aiService"
 import { getNow } from "../../model/Time";
 import { generateUUID } from "../../model/UUID";
 import { Model } from "../../model/Model";
+import { Tab } from "../../model/Tab";
 
 let props = defineProps({
   isToolBar: {
@@ -30,6 +31,10 @@ let props = defineProps({
     required: false,
     default: "image/png, image/jpeg, image/jpg",
   },
+  activeTab: {
+    type: Tab,
+    require: true
+  }
 });
 
 const emit = defineEmits<{
@@ -124,6 +129,9 @@ const handleSend = async () => {
     getNow()
   );
 
+  // 添加上下文
+  props.activeTab?.modelContext.addMessage(message);
+
   inputContent.value = "";
 
   // 触发父组件的发送事件
@@ -132,7 +140,9 @@ const handleSend = async () => {
   // 调用 AI 接口
   try {
     await streamChatCompletion(
-      [message],
+      message,
+        props.activeTab?.modelContext.getContextString() ?? "",
+        modelSettings.value.systemPrompt,
       (newMessage) => {
         // 新建消息对象，并设置类型为 BOT
         newMessage.type = MessageType.BOT;
@@ -142,7 +152,14 @@ const handleSend = async () => {
         // 更新消息内容
         emit("updateMessage", messageId, content);
       },
-      modelSettings.value // 传递用户设置的参数
+      (messageId, _) => {
+        const message = props.activeTab?.messages.find((msg) => msg.id === messageId);
+        if (message) {
+          // 添加上下文
+          props.activeTab?.modelContext.addMessage(message)   
+        }
+      },
+      modelSettings.value,
     );
     console.log("streamChatCompletion completed.", message);
   } catch (error) {

@@ -83,7 +83,7 @@ const formatContent = (content: string) => {
 // 标签页操作
 function addNewTab(newTab?: Tab) {
   //  如果Tab已经存在，则直接active
-  const existedTab = tabs.value.find((tab) => tab.id === newTab?.id);
+  const existedTab: Tab = tabs.value.find((tab) => tab.id === newTab?.id);
   if (existedTab) {
     activateTab(existedTab);
     return;
@@ -131,6 +131,7 @@ const updateMessage = (messageId: string, content: string) => {
     message.content += content;
   }
 };
+
 
 const deleteMessage = (message: Message) => {
   const index = activeTab.value?.messages.findIndex(
@@ -350,7 +351,7 @@ function saveHistoriesToLocalStorage() {
             class="h-fit flex items-start justify-start gap-2"
           >
             <img
-              src="/src/icon.png"
+              src="../../icon.png"
               alt="AI"
               class="size-10 aspect-square rounded-full bg-amber-50"
             />
@@ -439,6 +440,7 @@ function saveHistoriesToLocalStorage() {
     <!-- Input Box -->
     <div class="relative min-h-40">
       <InputBox
+        :activeTab="activeTab"
         :isToolBar="true"
         @sendMessage="handleSendMessage"
         @receiveMessage="handleReceiveMessage"
