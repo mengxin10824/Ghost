@@ -16,10 +16,17 @@ defineEmits<{
   (event: "delete", message: Message): void;
 }>();
 
-function copyToClipboard(message: Message) {
-  navigator.clipboard.writeText(message.content);
-  alert('已复制到到粘贴板');
-}
+const copyToClipboard = (message: Message) => {
+  const words = message.content
+  navigator.clipboard
+    .writeText(words)
+    .then(() => {
+      alert("复制成功");
+    })
+    .catch(() => {
+      alert("复制失败，请检查浏览器设置");
+    });
+};
 </script>
 <template>
   <div

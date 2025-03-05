@@ -46,6 +46,15 @@ let modelSetting = ref(false);
 
 let inputContent = ref("");
 
+function initMessage(messageString: string) {
+  inputContent.value = messageString;
+  handleSend();
+}
+
+defineExpose({
+  initMessage
+});
+
 const modelSettings = ref({
   systemPrompt: "",
   maxTokens: 2048,

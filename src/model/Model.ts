@@ -9,27 +9,6 @@ import { generateUUID } from "./UUID";
  * 
  */
 export class Model {
-    // id: string;
-
-    // name: string;
-    
-    // /**
-    //  * 模型图片地址，在对话框显示 Icon
-    //  */
-    // img: string;
-
-    // url: string;
-    // /**
-    //  * 模型API密钥，没有 Bearer 的字符串
-    //  */
-    // apiKey: string;
-
-    // constructor(id: string, name: string, img: string, url: string, apiKey: string) {
-    //     this.id = id;
-    //     this.name = name;
-    //     this.img = img;
-    //     this.url = url;
-    //     this.apiKey = apiKey;
     constructor(
         public readonly id: string= generateUUID(),
         public name: string,

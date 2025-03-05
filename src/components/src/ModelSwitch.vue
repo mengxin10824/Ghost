@@ -42,59 +42,16 @@ const handleModelSelect = (model: Model) => {
 </script>
 
 <template>
-  <div class="model-switch-container">
+  <div class="absolute top-[-200px] left-0 z-[1000] bg-gray-500 rounded-lg shadow-md p-2 w-[200px]">
     <div
       v-for="model in models"
       :key="model.id"
-      class="model-item"
-      :class="{ 'active-model': model.id === currentModel.id }"
+      class="flex items-center p-2 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-200 hover:text-black"
+      :class="{ 'bg-gray-600 font-bold': model.id === currentModel.id }"
       @click="handleModelSelect(model)"
     >
-      <img :src="model.icon" :alt="model.name" class="model-icon" />
-      <span class="model-name">{{ model.name }}</span>
+      <img :src="model.icon" :alt="model.name" class="w-6 h-6 mr-2" />
+      <span class="text-sm">{{ model.name }}</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.model-switch-container {
-  position: absolute;
-  top: -200px; /* 根据实际菜单高度调整 */
-  left: 0;
-  z-index: 1000; /* 确保菜单浮于其他元素上方 */
-  background: rgb(97, 97, 97);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 8px;
-  width: 200px; /* 根据实际需求调整 */
-}
-
-.model-item {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.model-item:hover {
-  background-color: #f0f0f0;
-  color: #000;
-}
-
-.active-model {
-  background-color: #656565;
-  font-weight: bold;
-}
-
-.model-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-}
-
-.model-name {
-  font-size: 14px;
-}
-</style>

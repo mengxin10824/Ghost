@@ -8,7 +8,7 @@ import { Model } from './model/Model'
 const defaultModel = new Model(
   import.meta.env.VITE_DEFAULT_MODEL_ID || "Qwen/Qwen2-1.5B-Instruct",
   'Default Model',
-  '/model-icon.png',
+  '/src/icon.png',
   'https://api.siliconflow.cn/v1',
   import.meta.env.VITE_FALLBACK_API_KEY
 )
