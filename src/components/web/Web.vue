@@ -4,7 +4,6 @@ import Favorite from "./components/favorite.vue";
 import InputBox from "../src/inputBox.vue";
 import { ref, computed, onMounted, watch } from "vue";
 import TabBar from "./components/TabBar.vue";
-import { Model } from "../../model/Model";
 import { Tab } from "../../model/Tab";
 import { Message, MessageType } from "../../model/Message";
 import MarkdownIt from "markdown-it";
@@ -65,14 +64,7 @@ const saveTab = () => {
 const isShowFavorite = ref(false);
 const isShowHistory = ref(false);
 
-// 模型和用户信息
-const model = new Model(
-  undefined,
-  "Bot",
-  "https://cdn.jsdelivr.net/gh/linonetwo/linonetwo.github.io/assets/img/robot.png",
-  "Qwen/Qwen2-1.5B-Instruct",
-  import.meta.env.VITE_FALLBACK_API_KEY
-);
+
 const userImg = "/src/icon.png";
 
 // 计算属性

@@ -9,7 +9,7 @@ import { getNow } from '../model/Time';
 let _currentModel: Model;
 // let API_BASE: string;
 
-let _apiBase: string;
+export let _apiBase: string;
 
 
 interface ChatCompletionRequest {
