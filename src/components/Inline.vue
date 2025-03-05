@@ -14,12 +14,12 @@ const model = new Model(
 );
 
 
-function deleteMessage(message: Message) {
-  const index = messages.value.indexOf(message);
-  if (index >= 0) {
-    messages.value.splice(index, 1);
-  }
-}
+// function deleteMessage(message: Message) {
+//   const index = messages.value.indexOf(message);
+//   if (index >= 0) {
+//     messages.value.splice(index, 1);
+//   }
+// }
 
 const sendMessage = (message: Message) => {
   messages.value.push(message);

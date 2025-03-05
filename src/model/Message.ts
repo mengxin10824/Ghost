@@ -38,7 +38,7 @@ export class Message {
 
     type: MessageType;
 
-    constructor(id: string, content: string, sender: MessageType, sendTime: string, attachMent: Array<File> | null = null) {
+    constructor(id: string = generateUUID(), content: string, sender: MessageType, sendTime: string = getNow(), attachMent: Array<File> | null = null) {
         this.id = id;
         this.content = content;
         this.sender = sender;
