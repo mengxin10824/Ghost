@@ -65,8 +65,6 @@ const isShowFavorite = ref(false);
 const isShowHistory = ref(false);
 
 
-const userImg = "/src/icon.png";
-
 // 计算属性
 const activeMessages = computed(() => {
   const activeTab = tabs.value.find((tab) => tab.isActive);
@@ -352,7 +350,7 @@ function saveHistoriesToLocalStorage() {
             class="h-fit flex items-start justify-start gap-2"
           >
             <img
-              :src="userImg"
+              src="/src/icon.png"
               alt="AI"
               class="size-10 aspect-square rounded-full bg-amber-50"
             />
@@ -512,48 +510,6 @@ code .comment {
 code .number {
   color: #b5cea8; /* 数字颜色 */
 }
-</style>
-<style scoped>
-pre {
-  padding: 0.5rem 1rem; /* 减少上下内边距 */
-  margin: 0; /* 去除默认外边距 */
-  width: 100%; /* 宽度一致 */
-  overflow-x: auto; /* 允许水平滚动 */
-  background-color: #1e1e1e; /* 深色背景 */
-  border-radius: 0.5rem; /* 圆角 */
-}
-
-code {
-  display: block; /* 确保代码块独占一行 */
-  white-space: pre; /* 保留换行，但不自动换行 */
-  overflow-wrap: break-word; /* 允许长单词换行 */
-  font-size: 1rem; /* 字体大小 */
-  font-weight: normal; /* 字体加粗 */
-  letter-spacing: normal; /* 字母间距 */
-  word-spacing: normal; /* 单词间距 */
-
-  text-align: start; /* 文本对齐方式为左对齐 */
-  /* color: #d4d4d4;  */
-  font-family: "Consolas", "Monaco", monospace; /* 使用等宽字体 */
-  line-height: 1.5; /* 行高 */
-}
-
-/* 添加语法高亮 */
-code .keyword {
-  color: #569cd6; /* 关键字颜色 */
-}
-
-code .string {
-  color: #ce9178; /* 字符串颜色 */
-}
-
-code .comment {
-  color: #6a9955; /* 注释颜色 */
-}
-
-code .number {
-  color: #b5cea8; /* 数字颜色 */
-}
 
 .favorite-enter-active {
   animation: favorite-animation 0.2s both;
@@ -586,5 +542,4 @@ code .number {
     transform: translateX(0);
   }
 }
-
 </style>
