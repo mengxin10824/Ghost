@@ -64,9 +64,6 @@ const saveTab = () => {
 const isShowFavorite = ref(false);
 const isShowHistory = ref(false);
 
-
-const userImg = "/src/icon.png";
-
 // 计算属性
 const activeMessages = computed(() => {
   const activeTab = tabs.value.find((tab) => tab.isActive);
@@ -93,7 +90,7 @@ const formatContent = (content: string) => {
 // 标签页操作
 function addNewTab(newTab?: Tab) {
   //  如果Tab已经存在，则直接active
-  const existedTab = tabs.value.find((tab) => tab.id === newTab?.id);
+  const existedTab: Tab = tabs.value.find((tab) => tab.id === newTab?.id);
   if (existedTab) {
     activateTab(existedTab);
     return;
@@ -299,6 +296,12 @@ function deleteHistory(history: Tab) {
   deleteTab(history);
 }
 
+function turnOnSafetyMode() {
+  const newTab = new Tab(undefined, "隐私模式", false, undefined);
+  newTab.isPrivate = true;
+  addNewTab(newTab);
+}
+
 function getHistoriesFromLocalStorage() {
   const storedHistories = localStorage.getItem("histories");
   return storedHistories ? JSON.parse(storedHistories) : [];
@@ -359,9 +362,10 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
 
       <!-- Chat -->
       <div
-        class="grow w-full text-white md:px-26 md:py-10 md:gap-5 md:flex md:flex-col overflow-y-auto h-[calc(100vh-200px)]"
+        class="grow w-full text-white py-5 px-3 md:px-26 md:py-10 md:gap-5 md:flex md:flex-col overflow-y-auto h-[calc(100vh-200px)]"
       >
         <div class="relative group" v-for="msg in activeMessages" :key="msg.id">
+          <!-- if 判断 -->
           <div
             v-if="msg.sender === MessageType.USER"
             class="h-fit flex flex-row-reverse items-start justify-start gap-2"
@@ -370,12 +374,13 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
               <p class="text-pretty break-words">{{ msg.content }}</p>
             </div>
           </div>
+          <!-- if 判断 -->
           <div
             v-if="msg.sender === MessageType.BOT"
             class="h-fit flex items-start justify-start gap-2"
           >
             <img
-              :src="userImg"
+              src="../../icon.png"
               alt="AI"
               class="size-10 aspect-square rounded-full bg-amber-50"
             />
@@ -410,13 +415,15 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
 
           <!-- Hover-Tool -->
           <div
-            class="absolute h-6 bg-gray-700 w-fit top-full rounded-2xl py-1 px-2 text-gray-300 gap-2 hidden group-hover:flex z-1"
+            class="absolute  top-full pt-3 text-gray-300 hidden group-hover:flex z-1"
             :class="msg.sender === MessageType.BOT ? 'left-10' : 'right-10'"
           >
-            <!-- 删除 -->
+            <div class="gap-2 flex bg-gray-800 rounded-2xl w-fit p-2">
+                <!-- 删除 -->
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
+              height="18"
               viewBox="0 0 24 24"
               @click="deleteMessage(msg)"
             >
@@ -429,6 +436,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
+              height="18"
               viewBox="0 0 24 24"
               @click="addFavorite(msg)"
             >
@@ -441,6 +449,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
+              height="18"
               viewBox="0 0 24 24"
               @click="copyToClipboard(msg.content)"
             >
@@ -453,6 +462,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
                 />
               </g>
             </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -461,10 +471,12 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
     <!-- Input Box -->
     <div class="relative min-h-40">
       <InputBox
+        :activeTab="activeTab"
         :isToolBar="true"
         @sendMessage="handleSendMessage"
         @receiveMessage="handleReceiveMessage"
         @updateMessage="updateMessage"
+        @turnOnSafetyMode="turnOnSafetyMode"
       />
     </div>
 
@@ -491,48 +503,6 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
   </div>
 </template>
 
-<style scoped>
-pre {
-  padding: 0.5rem 1rem; /* 减少上下内边距 */
-  margin: 0; /* 去除默认外边距 */
-  width: 100%; /* 宽度一致 */
-  overflow-x: auto; /* 允许水平滚动 */
-  background-color: #1e1e1e; /* 深色背景 */
-  border-radius: 0.5rem; /* 圆角 */
-}
-
-code {
-  display: block; /* 确保代码块独占一行 */
-  white-space: pre; /* 保留换行，但不自动换行 */
-  overflow-wrap: break-word; /* 允许长单词换行 */
-  font-size: 1rem; /* 字体大小 */
-  font-weight: normal; /* 字体加粗 */
-  letter-spacing: normal; /* 字母间距 */
-  word-spacing: normal; /* 单词间距 */
-
-  text-align: start; /* 文本对齐方式为左对齐 */
-  /* color: #d4d4d4;  */
-  font-family: "Consolas", "Monaco", monospace; /* 使用等宽字体 */
-  line-height: 1.5; /* 行高 */
-}
-
-/* 添加语法高亮 */
-code .keyword {
-  color: #569cd6; /* 关键字颜色 */
-}
-
-code .string {
-  color: #ce9178; /* 字符串颜色 */
-}
-
-code .comment {
-  color: #6a9955; /* 注释颜色 */
-}
-
-code .number {
-  color: #b5cea8; /* 数字颜色 */
-}
-</style>
 <style scoped>
 pre {
   padding: 0.5rem 1rem; /* 减少上下内边距 */
@@ -606,5 +576,4 @@ code .number {
     transform: translateX(0);
   }
 }
-
 </style>

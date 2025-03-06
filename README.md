@@ -1,5 +1,6 @@
 # Ghost
 
+![GHOST](/src/icon.png)
 Ghost 是一个本地的 LLM 对话应用，是参加 *MarsCode 寒假青训营* 的结营大项目。
 
 | **团队成员** | **主要贡献**                                             |
@@ -13,7 +14,7 @@ Ghost 是一个本地的 LLM 对话应用，是参加 *MarsCode 寒假青训营*
 
 # 部署
 
-本项目部署在 CloudFlare Pages 的平台上。
+本项目`main`分支同步部署在 CloudFlare Pages 的平台上。
 
 1. 创建以下环境变量`.env`
 
@@ -23,10 +24,10 @@ VITE_API_BASE_URL=https://api.siliconflow.cn/v1
 VITE_FALLBACK_API_KEY=sk-[YOUR_API_KEY]
 ```
 
-2. `Clone` 本项目
+2. `Clone` 本项目并部署
 
 ```shell
-cd llm-project
+git clone https://github.com/mengxin10824/Ghost.git
 npm run dev
 ```
 
@@ -34,11 +35,11 @@ npm run dev
 
 * 感谢 CloudFlare 的免费服务
 * 感谢我们 6 人小组的长期陪伴
-* 本项目使用了以下库：
+* 感谢本项目使用了如下但不限于的项目：
   * Vue
   * Vitest
   * Vite
   * Markdown-It
   * Axios
-  * Tailwindcss
+  * TailwindCSS
 
