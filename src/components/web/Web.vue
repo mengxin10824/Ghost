@@ -9,7 +9,7 @@ import { Message, MessageType } from "../../model/Message";
 import MarkdownIt from "markdown-it";
 import markdownItAttrs from 'markdown-it-attrs';
 // 标签页
-const tabs = ref<Tab[]>([new Tab(undefined, "New Tab", true, undefined)]);
+const tabs = ref<Array<Tab>>([new Tab(undefined, "New Tab", true, undefined)]);
 // 监听标签页变化
 watch(
   tabs,
@@ -90,9 +90,9 @@ const formatContent = (content: string) => {
 // 标签页操作
 function addNewTab(newTab?: Tab) {
   //  如果Tab已经存在，则直接active
-  const existedTab: Tab = tabs.value.find((tab) => tab.id === newTab?.id);
+  const existedTab  = tabs.value.find((tab) => tab.id === newTab?.id);
   if (existedTab) {
-    activateTab(existedTab);
+    activateTab(existedTab as Tab);
     return;
   }
 
@@ -120,7 +120,7 @@ function deleteTab(tabToDelete: Tab) {
 
   if (wasActive && tabs.value.length > 0) {
     const newIndex = Math.min(index, tabs.value.length - 1);
-    activateTab(tabs.value[newIndex]);
+    activateTab(tabs.value[newIndex] as Tab);
   }
 }
 
@@ -310,21 +310,6 @@ function getHistoriesFromLocalStorage() {
 function saveHistoriesToLocalStorage() {
   localStorage.setItem("histories", JSON.stringify(histories.value));
 }
-
-const base64ToBlob = (base64: string, mimeType: string) => {
-  const binaryStr = atob(base64);
-  const len = binaryStr.length;
-  const arr = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    arr[i] = binaryStr.charCodeAt(i);
-  }
-  return new Blob([arr], { type: mimeType });
-};
-
-const base64ToImageUrl = (base64: string, mimeType: string) => {
-  const blob = base64ToBlob(base64, mimeType);
-  return URL.createObjectURL(blob);
-};
 </script>
 <template>
   <div
@@ -354,7 +339,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
     >
       <!-- Tab Bar -->
       <TabBar
-        :tabs="tabs"
+        :tabs="tabs as Tab[]"
         @addTab="addNewTab(undefined)"
         @activateTab="activateTab"
         @deleteTab="deleteTab"
@@ -471,7 +456,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
     <!-- Input Box -->
     <div class="relative min-h-40">
       <InputBox
-        :activeTab="activeTab"
+        :activeTab="activeTab as Tab"
         :isToolBar="true"
         @sendMessage="handleSendMessage"
         @receiveMessage="handleReceiveMessage"
@@ -493,7 +478,7 @@ const base64ToImageUrl = (base64: string, mimeType: string) => {
     <Transition name="history">
       <History
         v-if="isShowHistory"
-        :histories="histories"
+        :histories="histories as Tab[]"
         @close="isShowHistory = false"
         @newHistory="addHistory(undefined)"
         @selectHistory="addNewTab"

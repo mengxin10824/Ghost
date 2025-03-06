@@ -25,16 +25,5 @@ export class Model {
     }
 }
 
-const supportedModels = [
-  // ... other models ...
-  new Model(
-    "Qwen/Qwen2-1.5B-Instruct", 
-    "Qwen2-1.5B-Instruct", 
-    "https://example.com/qwen-icon.png",
-    "https://api.siliconflow.cn/v1",
-    import.meta.env.VITE_FALLBACK_API_KEY,
-    false
-  ),
-];
 
 

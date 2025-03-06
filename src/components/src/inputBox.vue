@@ -117,7 +117,11 @@ const handleSend = async () => {
     inputContent.value,
     MessageType.USER,
     getNow(),
-    [{base64: attachMent.value}]
+    [{
+      base64: attachMent.value,
+      mimeType: "image/jpeg",
+      id: generateUUID(),
+  }]
   );
 
   inputContent.value = "";
@@ -223,13 +227,6 @@ const handleAttachClick = () => {
     }
   }
 };
-
-function getShadowRoot(element: HTMLElement): ShadowRoot | null {
-  if (element.shadowRoot) {
-    return element.shadowRoot;
-  }
-  return null;
-}
 </script>
 
 <template>
