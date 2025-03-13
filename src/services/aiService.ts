@@ -161,14 +161,24 @@ export const streamChatCompletion = async (
                 });
               }
 
-              // 添加图片附件
-              if (msg.attachments?.length > 0) {
+              // 如果有则添加图片附件
+              if (msg.attachments && msg.attachments.length > 0) {
                 msg.attachments.forEach((attachment) => {
+                  // 确保 base64 数据存在
+                  if (!attachment.base64) {
+                    console.warn("附件缺少base64数据，跳过此附件");
+                    return;
+                  }
+
+                  const imageType = attachment.mimeType || "image/jpeg";
+
+                  const detailLevel =  "auto"; // 可选值: "high", "low", "auto"
+
                   contentParts.push({
                     type: "image_url",
                     image_url: {
-                      url: `data:image/jpeg;base64,${attachment.base64}`,
-                      detail: "auto", // 根据需求调整图片细节
+                      url: `data:${imageType};base64,${attachment.base64}`,
+                      detail: detailLevel,
                     },
                   });
                 });
